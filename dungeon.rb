@@ -1,6 +1,4 @@
 class Dungeon
-  @@number_of_rooms = 0
-  @@number_of_items = 0
 
   def initialize
     # Created Monsters

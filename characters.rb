@@ -11,10 +11,24 @@ class Adventurer < Characters
       @helmet = basic_helmet
       @armor = basic_armor
       @boots = basic_boots
-      @position = [entryway, 0, 0]
+      @position = [0,0]
       @pack = []
       @movement = @boots.movement
       @defense = @helmet.defense + @armor.defense
     end
   
   end
+
+class Monster < Dungeon
+  attr_reader :name, :damage, :range, :movement, :health  
+
+   def initialize(name, damage, range, movement, health)
+     @name = name
+-    @position = [0,0]
+     @damage = damage
+     @range = range
+     @movement = movement
+     @health = health
+   end
+
+ end
