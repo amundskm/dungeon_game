@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
         {
             "name": "Debug Local File",
             "type": "Ruby",
@@ -25,11 +24,12 @@
             "name": "Rails server",
             "type": "Ruby",
             "request": "launch",
+            "showDebuggerOutput": true,
+            "useBundler": true,
+            "pathToBundler": "/home/rje/.rvm/gems/ruby-2.3.0/bin/bundle",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/bin/rails",
-            "args": [
-                "server"
-            ]
+            "program": "rails",
+            "args": ["server"]
         },
         {
             "name": "RSpec - all",

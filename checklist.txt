@@ -1,0 +1,55 @@
+Objective:
+Create a text based dungeon game similar to Zork. 
+
+Knowns:
+1. This will be using OOP techniques.
+2. The dungeon is a collection of rooms.
+3. In each room is a monster.
+4. The monster is protecting treasure.
+5. The treasure is usuable by the adventurer to heal or fight other monsters.
+6. Fighting includes turn based attacks with movement within the room. Weapons with different range.
+
+To do:
+Exposition to introduce story (method intro)
+
+**COMPLETED** Create Adventurer /characters.rb/
+
+**COMPLETED** Create Monsters /characters.rb/
+
+**COMPLETED** Create Rooms /rooms.rb/
+
+**COMPLETED** Create Items /items.rb #Also some in dungeon.rb <-- can this be moved to items?/
+
+**COMPLETED** Enter Room /dungeon.rb/
+
+**COMPLETED** State current stats /character.rb/
+
+Adventurer options while in room  (attack, retreat) /dungeon.rb/ <-- once completed retreat function add here
+
+**COMPLETED** Retreat to last room (room0 is a safe room)
+
+**COMPLETED** Adventurer attack movement /characters.rb/
+
+**COMPLETED** Adventurer attack
+
+Reaction to Adventurer attack
+
+Death of Monster/ Loot Drop
+
+**COMPLETED** Monster attack movment /characters.rb/
+
+**COMPLETED** Monster attack
+
+Reaction to monster attack
+
+Post fight option (change equipment, use potion, move to next room )
+
+Switch equipped items
+
+**COMPLETED**Use potion /dungeon.rb/
+
+**COMPLETED** Add to pack /dungeon.rb/
+
+**COMPLETED** remove from pack /dungeon.rb/
+
+Exposition to end story
