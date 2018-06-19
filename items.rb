@@ -5,7 +5,7 @@ class Weapon
     @name = name
     @damage = damage
     @range = range
-    @@weapon_list << @name
+    @@weapon_list << self if (@name != "Empty") || (@name != "Basic Sword") 
   end
 
   def self.weapon_list
@@ -21,7 +21,7 @@ class Helmet
   def initialize(name, defense)
     @name = name
     @defense = defense
-    @@helmet_list << @name
+    @@helmet_list << self if (@name != "Empty") || (@name != "Basic Helmet") 
   end
 
   def self.helmet_list
@@ -37,7 +37,7 @@ class Armor
   def initialize(name, defense)
     @name = name
     @defense = defense
-    @@armor_list << @name
+    @@armor_list << self if (@name != "Empty") || (@name != "Basic Armor") 
   end
 
   def self.armor_list
@@ -53,7 +53,7 @@ class Boots
   def initialize(name, movement)
     @name = name
     @movement= movement
-    @@boots_list = [] << @name
+    @@boots_list << self if (@name != "Empty") || (@name != "Basic Boots") 
   end
 
   def self.boots_list
