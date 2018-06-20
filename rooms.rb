@@ -14,7 +14,11 @@ class Room
     @monster_status = monster_status
     @dropped_treasure = []
     @@instances << self
-    @dropped_treasure << treasure
+    
+    if (name != "Entryway") && (name != "Exit")
+
+      @dropped_treasure << treasure
+    end
     
   end
 

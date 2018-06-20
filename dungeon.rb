@@ -1,5 +1,6 @@
 class Dungeon
   %w{./characters.rb ./items.rb ./rooms.rb}.each { |l| require l }
+
   include Math
   attr_reader :room0, :room1, :room2, :room3, :player
   attr_accessor  :current_room
@@ -7,8 +8,8 @@ class Dungeon
   def initialize
     # Created Monsters
     @hilgar = Monster.new("Hilgar the Hard", 5, 1, 3, 6)
-    @bartheous = Monster.new("Bartheous the Barbarian", 3, 6, 1, 50)
-    @cartus = Monster.new("Cartus the Camper", 25, 1, 5, 100)
+    @bartheous = Monster.new("Bartheous the Barbarian", 3, 2, 1, 20)
+    @cartus = Monster.new("Cartus the Camper", 8, 3, 5, 30)
 
     # Created Weapons
     @sword = Weapon.new("Super Sword", 10 , 1.0)
@@ -40,9 +41,9 @@ class Dungeon
 
     # Created Rooms
     @room0 = Room.new("Entryway", 3, 3, false, "dead")
-    @room1 = Room.new("Hallway", 6, 3, @hilgar)
-    @room2 = Room.new("Laboratory", 10, 10, @bartheous)
-    @room3 = Room.new("Kitchen", 20, 11, @cartus)
+    @room1 = Room.new("Hallway", 3, 3, @hilgar)
+    @room2 = Room.new("Laboratory", 3, 3, @bartheous)
+    @room3 = Room.new("Kitchen", 3, 3, @cartus)
     @room4 = Room.new("Exit", 3, 3, false, "dead")
 
     #create Adventurer
@@ -64,30 +65,30 @@ class Dungeon
     # gives option to attack or retreat. If attack is chosen, determines if player is in range.
     # if retreat is chosen, moves to the previous room
     while true
-      puts "Would you like to attack or retreat?"
+      puts "\nWould you like to attack or retreat?"
       choice = gets.chomp
       case choice
       when "attack"
-        draw_room(room, player)
         player.move_adventurer( room)
         range = in_range(player.position, room.monster.position)
-        puts "#{range}, #{player.weapon.range}"
+
         if range <= player.weapon.range
           adv_attack(room)
         else
-          puts "You are not in range"
+          puts "\nYou are not in range"
         end
-
-        room.monster.move_monster(room, player)
-
+        room.monster.move_monster(room, player) if room.monster.health > 0
         draw_room(room, player)
         room
         break
       when "retreat"
         room = retreat(room)
         break
+      when "see_stats"
+        player.player_stats(room)
+        break
       else
-        puts "That is not a valid option. Please enter your choice to attack or retreat."
+        puts "\nThat is not a valid option. Please enter your choice to attack or retreat."
       end
     end
     room
@@ -98,19 +99,21 @@ class Dungeon
   end
 
   def draw_room(room, player )
-
-    puts "#{room.name}: "
+    puts "A: The position of the Adventurer"
+    puts "M: The position of the Monster"
+    puts "*: Avaiable points in the room."
+    puts "\n\n#{room.name}: "
     puts "   0"
     puts "   |"
     puts "   v"
-    room.room_x.times do |x|
+    (room.room_x + 1).times do |x|
         
         if x == 0
             print "0->"   
         else
             print "   "
         end
-        room.room_y.times do |y|
+        (room.room_y + 1).times do |y|
             if (x == player.position[0]) && (y == player.position[1])
                 print "A  " 
             elsif (x == room.monster.position[0]) && (y == room.monster.position[1])
@@ -119,12 +122,20 @@ class Dungeon
                 print "*  "
             end
         end
-    puts ""
+        puts ""
     end
 
-        puts "The room is #{room.room_x} wide by #{room.room_y} long.
-    You are at point #{player.position[0]}, #{player.position[1]}.
-    The monster is at point #{room.monster.position[0]}, #{room.monster.position[1]}."
+    puts"X
+^
+|
+|
+------> Y"
+
+        puts "\n\nThe room is #{room.room_x} wide by #{room.room_y} long.
+    You are at point x: #{player.position[0]}, y: #{player.position[1]}.
+    The monster is at point x: #{room.monster.position[0]}, y: #{room.monster.position[1]}.\n
+    #{player.name}'s hp is #{player.health}
+    #{room.monster.name}'s hp is #{room.monster.health}"
   end
 
   def drop_item(room)
@@ -143,43 +154,46 @@ class Dungeon
     if room.monster == false
       puts "You are in safe in #{room.name}. There are no monsters."
     else
-      puts "As you enter the #{room.name}, you see #{room.monster.name} standing at #{room.monster.position[0]},  #{room.monster.position[0]}. It is #{room.monster_status}. The room is #{room.room_x} by #{room.room_y}"
       draw_room(room, player)
     end
   end
 
   def equip_item(room)
     to_equip = nil
-    puts "What item would you like to equip?"
+    puts "\nWhat item would you like to equip?"
     input = gets.chomp
 
     player.pack.each do |item| 
       if item.name == input
-        puts "The player pack item name is #{item.name}"
+        puts "\nThe player pack item name is #{item.name}"
         to_equip = player.pack.delete(item)
       end
     end
 
     room.dropped_treasure.each do |item|
       if item.name == input
-        puts "The loot item name is #{item.name}"
+        puts "\nThe loot item name is #{item.name}"
         to_equip = room.dropped_treasure.delete(item)
       end
     end
-    
-    case to_equip
-    when to_equip.is_a?(Weapon)
+
+     
+    if to_equip.class == Weapon
       room.dropped_treasure << player.weapon
       player.weapon = to_equip
-    when to_equip.is_a?(Helmet)
+      puts "\nThe #{player.weapon.name} is now equipped"
+    elsif to_equip.class == Helmet
       room.dropped_treasure << player.helmet
       player.helmet = to_equip
-    when to_equip.is_a?(Armor)
+      puts "\nThe #{player.helmet.name} is now equipped"
+    elsif to_equip.class == Armor
       room.dropped_treasure << player.armor
       player.armor = to_equip
-    when to_equip.is_a?(Boots)
+      puts "\nThe #{player.armor.name} is now equipped"
+    elsif to_equip.class == Boots
       room.dropped_treasure << player.boots
       player.boots = to_equip
+      puts "\nThe #{player.boots.name} is now equipped"
     end
   end 
 
@@ -191,27 +205,39 @@ class Dungeon
 
   def intro(player)
     # introduction to the game
-    puts "lots and lots of good stuff"
+    puts "Welcome #{player.name}, to the Dungeon of Magriba. Long have adventurers like you
+sought this dungeon, and its many evils.  You currently stand in the Entryway. A safe point to cower
+as you flee the demons beyond. Good luck!"
   end
 
   def loot(room)
-    while true
+    if room.dropped_treasure.length > 0
       room.dropped_treasure.each do |room_treasure|
-        puts "On the floor you find: #{room_treasure.name}. What would you like to do? [equip_item, put_in_pack, nothing]"
+        puts "\nOn the floor you find: #{room_treasure.name}.\nWhat would you like to do? [equip_item, put_in_pack, use_potion nothing]"
       end
+
       input = gets.chomp
       case input
       when "equip_item"
         equip_item(room)
-        break
+
       when "put_in_pack"
-        pack_item(room)
-        break
+        open_pack(room)
+
+      when "use_potion"
+        room.dropped_treasure.each do |room_treasure| 
+          if room_treasure.class == potion
+            player.pack << room.dropped_treasure.delete(room_treasure)
+          end
+        end
+
       when "nothing"
-        break
+
       else
-        "That is not a valid response. Please try again."
+        "\nThat is not a valid response. Please try again."
       end
+    else
+      puts "\nThere is no loot."
     end
   end
 
@@ -226,17 +252,18 @@ class Dungeon
   def open_pack(room)
 
     while true
-      puts "In #{player.name}'s pack there is: "
+      puts "\nIn #{player.name}'s pack there is: "
+      room.dropped_treasure.each {|item| puts "\n On the ground there is: #{item.name}"}
 
       player.pack.each { |item| puts "#{item.name} "}
 
-      puts "What would you like to do with your pack? [drop_item, equip_item, pack_item, use_potion, close_pack]"
+      puts "\nWhat would you like to do with your pack? [drop_item, equip_item, pack_item, use_potion, close_pack]"
       ans = gets.chomp
 
         case ans
         when "drop_item"
-        drop_item(room)
-        break
+          drop_item(room)
+          break
         when "equip_item"
           equip_item(room)
           break
@@ -246,67 +273,67 @@ class Dungeon
         when "pack_item"
           pack_item(room)
           break
+        when "close_pack"
+          puts "This shoud close"
+          break
         else
-          "That is not a vaid response. Please try again."
+          "\nThat is not a vaid response. Please try again."
         end
     end
   end
 
   def pack_item(room)
     while true
-      puts "Which item would you like to add to your pack? [close_pack]"
+      
       room.dropped_treasure.each do |item|
-        puts "From loot on floor: #{item.name}"
+        puts "\nFrom loot on floor:  \n#{item.name}"
       end
-      puts "There are what #{player.name} currently has equipped: "
-      puts "#{player.weapon}"
-      puts "#{player.helmet}"
-      puts "#{player.armor}"
-      puts "#{player.boots}"
+      puts "\nThere are what #{player.name} currently has equipped: "
+      puts "#{player.weapon.name}"
+      puts "#{player.helmet.name}"
+      puts "#{player.armor.name}"
+      puts "#{player.boots.name}"
 
+      puts "\n\nWhich item would you like to add to your pack? [close_pack]"
       input = gets.chomp
 
       if player.pack.length < 4
-        room.dropped_treasure.each do |item|
 
+        room.dropped_treasure.each do |item|
           if input == item.name
             player.pack << room.dropped_treasure.delete(item)
-            break
-          else
-
-            case input
-            when player.weapon.name
-              player.pack << player.weapon
-              player.weapon = nothing_sword
-              break
-            when player.armor.name
-              player.pack << player.armor
-              player.weapon = nothing_armor
-              break
-            when player.helmet.name
-              player.pack << player.helmet
-              player.weapon = nothing_helmet
-              break
-            when player.boots.name
-              player.pack << player.boots
-              player.weapon = nothing_boots
-              break
-            when "close_pack"
-              break
-            else
-              puts "That is an invalid entry. Please try again."
-            end
-
+            return
           end
-
         end
+
+        case input
+        when player.weapon.name
+          player.pack << player.weapon
+          player.weapon = @nothing_sword
+          return
+        when player.armor.name
+          player.pack << player.armor
+          player.weapon = @nothing_armor
+          return
+        when player.helmet.name
+          player.pack << player.helmet
+          player.weapon = @nothing_helmet
+          return
+        when player.boots.name
+          player.pack << player.boots
+          player.weapon = @nothing_boots
+          return
+        when "close_pack"
+          return
+        else
+          puts "\nThat is an invalid entry. Please try again."
+        end
+
       else
-        puts "There is no space."
+        puts "\nThere is no space."
       end
     end
   end
-
-
 
   def retreat(room)
     if room.monster != false
@@ -322,7 +349,7 @@ class Dungeon
   def staging(room)
     # Determine how the player wants to move between rooms
     while true
-      puts "What would you like to do? [continue, retreat, see_stats, loot, open_pack]"
+      puts "\nWhat would you like to do? [continue, retreat, see_stats, loot, open_pack]"
       ans = gets.chomp
       case ans
       when "continue"
@@ -333,19 +360,20 @@ class Dungeon
       when "see_stats"
         player.player_stats
         room
+        break
       when "retreat"
-       room = retreat(room)
+        room = retreat(room)
         break
       when "loot"
-          loot(room)
-          room
+        loot(room)
+        room
         break
       when "open_pack"
         open_pack(room)
         room
         break
       else
-        puts "That is not a valid selection."
+        puts "\nThat is not a valid selection."
       end
     end
 
@@ -371,7 +399,7 @@ class Dungeon
     if room.monster.health <= 0
       room.monster_status = "dead"
     else
-      puts "#{room.monster.name} is at #{room.monster.health} health."
+      puts "\n\n#{player.name} uses #{player.weapon.name} to attack #{room.monster.name}. The monster has lost #{player.weapon.damage} hp and is at #{room.monster.health} health."
     end
   end
 
@@ -383,10 +411,15 @@ def main(game)
 
   game.intro(player)
   old_room = game.current_room
-  while  Room.instances.index(game.current_room) < Room.instances.length do
+  while  Room.instances.index(game.current_room) < Room.instances.length - 1 do
     if old_room != game.current_room
       game.enter_room(game.current_room)
       old_room = game.current_room
+    end
+
+    if game.player.health < 0
+      put "\nYou are dead. Game Over."
+      break
     end
 
     if game.current_room.monster_status == "dead"
@@ -402,8 +435,5 @@ def main(game)
 end 
 
 gameplay = Dungeon.new
-puts gameplay.room1.dropped_treasure[0].name
-puts gameplay.room2.dropped_treasure[0].name
-puts gameplay.room3.dropped_treasure[0].name
 
 main(gameplay)

@@ -13,7 +13,6 @@ class Adventurer
     @position = [0,0]
     @pack = []
     @movement = @boots.movement
-    @defense = @helmet.defense + @armor.defense
     @health = 100
   end
 
@@ -25,11 +24,17 @@ class Adventurer
       pack.each {|item| in_pack = in_pack + "#{item.name}"}
       packed = "#{name}'s pack contains #{in_pack}"
     end
-    puts "#{name} is at #{position[0]}, #{position[1]}. #{name} has the weapon #{weapon.name} equipped. It does
-#{weapon.damage} damage and has a range of #{weapon.range}. #{name} has the #{helmet.name} helmet upon their head. It provides #{helmet.defense} 
-defense. #{name} has the #{armor.name} strapped to their chest. It provides #{armor.defense} defense. And upon 
-#{name}'s feet are the #{boots.name}. They give #{movement} movement. #{packed}
+    defense = armor.defense + helmet.defense
 
+    puts "#{name} is at #{position[0]}, #{position[1]}.
+#{name} has the weapon #{weapon.name} equipped. 
+It does #{weapon.damage} damage and has a range of #{weapon.range}. 
+#{name} has the #{helmet.name} helmet upon their head. 
+It provides #{helmet.defense} defense.
+#{name} has the #{armor.name} strapped to their chest.
+It provides #{armor.defense} defense.
+And upon #{name}'s feet are the #{boots.name}. 
+They give #{movement} movement. #{packed}
 Total attack: #{weapon.damage}
 Total defense: #{defense}
 Total movement: #{movement}"
@@ -73,22 +78,26 @@ Total movement: #{movement}"
     room_y = room.room_y
     # Get input from user on their x and y movement
     while true
-        puts "Your total movement = #{movement}"
-        puts "Please enter movement in the x and y direction: x,y"
+        puts "\nYour total movement = #{movement}"
+        puts "Please enter the point you want to move to in the x and y direction: x,y [none]"
         move = gets.chomp
-        move_x = move.split(",")[0].to_i
-        move_y = move.split(",")[1].to_i
-        x = position[0]
-        y = position[1]
+        if move == "none"
+          break
+        else
+          move_x = move.split(",")[0].to_i
+          move_y = move.split(",")[1].to_i
+          x = position[0]
+          y = position[1]
+        end
 
         #check if x and y movement are valid inputs
         if (move_x < 0 || move_x > room_x)
-            puts "You have eventered a point that is outside of the room. 
+            puts "\nYou have eventered a point that is outside of the room. 
             Please try again" 
         end
 
         if (move_y < 0 || move_y > room_y)
-            puts "You have eventered a point that is outside of the room. 
+            puts "\nYou have eventered a point that is outside of the room. 
             Please try again" 
         end
         
@@ -96,7 +105,7 @@ Total movement: #{movement}"
             self.position = [move_x, move_y]
             break
         else
-            puts "You have entered a point you cannot reach. Please try again."
+            puts "\nYou have entered a point you cannot reach. Please try again."
         end
     end
 
@@ -158,10 +167,10 @@ class Monster
     if mon_arr == []
 
       self.position = min_dist_arr
-      puts "The monster is NOT in range to attack."
+      puts "\nThe monster is NOT in range to attack."
       
     else
-      puts "The monster is in range to attack."
+      puts "\nThe monster is in range to attack."
       mon_attack(room, player)
        self.position = mon_arr[0]
     end
@@ -170,7 +179,9 @@ class Monster
   def mon_attack(room, player)
     # damage to player calculation
     attack = room.monster.damage
-    player.health = attack - player.defense if attack > player.defense
+    if attack > player.armor.defense + player.helmet.defense
+      player.health -= attack - player.armor.defense + player.helmet.defense 
+    end
     puts "#{player.name}'s health is at #{player.health}"
   end
  end
